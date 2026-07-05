@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useYouTubePlayer } from '../hooks/useYouTubePlayer';
 import { useRoom } from '../context/RoomContext';
 import { socket } from '../socket';
-import type { PlaybackState } from '../types';
 
 export const Player: React.FC = () => {
   const { isReady, playerState, loadVideo, play, pause, seekTo, getCurrentTime } = useYouTubePlayer('yt-player');
@@ -10,6 +9,12 @@ export const Player: React.FC = () => {
   const prevTrackIdRef = useRef<string | null>(null);
   const syncIntervalRef = useRef<any>(null);
   const [needsInteraction, setNeedsInteraction] = useState(false);
+
+  useEffect(() => {
+    if (playerState === 'playing') {
+      setNeedsInteraction(false);
+    }
+  }, [playerState]);
 
   // 1. Handle Track Changes
   useEffect(() => {
@@ -47,11 +52,7 @@ export const Player: React.FC = () => {
       if (playerState !== 'playing' && playerState !== 'buffering') {
         play();
         // Fallback for autoplay blocks
-        setTimeout(() => {
-           if (playerState !== 'playing') {
-              setNeedsInteraction(true);
-           }
-        }, 1000);
+        setNeedsInteraction(true);
       }
 
       // Drift correction interval

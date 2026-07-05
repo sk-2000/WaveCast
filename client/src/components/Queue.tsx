@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
+import type { DropResult } from '@hello-pangea/dnd';
 import { Search, Plus, Trash2, GripVertical, Lock, Unlock } from 'lucide-react';
 import { useRoom } from '../context/RoomContext';
 import { socket } from '../socket';
@@ -11,7 +12,6 @@ export const Queue: React.FC = () => {
   const { room, isHost } = useRoom();
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<Track[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
 
   if (!room) return null;
 
@@ -20,7 +20,6 @@ export const Queue: React.FC = () => {
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchQuery.trim()) return;
-    setIsSearching(true);
     try {
       const URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
       const res = await fetch(`${URL}/api/search?q=${encodeURIComponent(searchQuery)}`);
@@ -30,8 +29,6 @@ export const Queue: React.FC = () => {
       }
     } catch (error) {
       console.error(error);
-    } finally {
-      setIsSearching(false);
     }
   };
 
